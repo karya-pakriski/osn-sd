@@ -398,38 +398,57 @@
     renderQuizFromData();
   }
 
-  function renderQuizFromData() {
-    stopTimer(); const container=document.getElementById("quiz-container"); container.innerHTML="";
-    const badge=document.getElementById("quiz-materi-badge"); badge.textContent=currentMateriDef? (currentMateriDef.emoji+" "+currentMateriDef.nama):"";
-    badge.style.setProperty("--mc",currentMateriDef?.color||"var(--blue-800)"); badge.style.setProperty("--mbg",currentMateriDef?.bg||"var(--blue-100)");
-    let answeredCount=0;
+function renderQuizFromData() {
+  stopTimer(); 
+  const container = document.getElementById("quiz-container"); 
+  container.innerHTML = "";
+  
+  const badge = document.getElementById("quiz-materi-badge"); 
+  badge.textContent = currentMateriDef ? (currentMateriDef.emoji + " " + currentMateriDef.nama) : "";
+  badge.style.setProperty("--mc", currentMateriDef?.color || "var(--blue-800)"); 
+  badge.style.setProperty("--mbg", currentMateriDef?.bg || "var(--blue-100)");
+  
+  let answeredCount = 0;
 
-    quizData.forEach((q,idx)=>{
-      const card=document.createElement("div"); card.className="question-card"; card.dataset.id=q.id;
-      const selKey=userAnswers[q.id]||""; if(selKey) answeredCount++;
-      const optsHtml = q.shuffledOpts.map(o=>{
-        const sel=selKey===o.key;
-        return `<label class="option-label${sel?" selected":""}"><input type="radio" name="q_${q.id}" value="${o.key}"${sel?" checked":""}><div class="option-bullet"></div><span>${o.text}</span></label>`;
-      }).join("");
-      card.innerHTML=`<div class="q-number">Soal ${idx+1}</div><div class="q-text">${q.Pertanyaan_HTML}</div><div class="options-grid">${optsHtml}</div>`; container.appendChild(card);
+  quizData.forEach((q, idx) => {
+    const card = document.createElement("div"); 
+    card.className = "question-card"; 
+    card.dataset.id = q.id;
+    
+    const selKey = userAnswers[q.id] || ""; 
+    if (selKey) answeredCount++;
+    
+    const optsHtml = q.shuffledOpts.map(o => {
+      const sel = selKey === o.key;
+      return `<label class="option-label${sel ? " selected" : ""}"><input type="radio" name="q_${q.id}" value="${o.key}"${sel ? " checked" : ""}><div class="option-bullet"></div><span>${o.text}</span></label>`;
+    }).join("");
+    
+    card.innerHTML = `<div class="q-number">Soal ${idx + 1}</div><div class="q-text">${q.Pertanyaan_HTML}</div><div class="options-grid">${optsHtml}</div>`; 
+    container.appendChild(card);
+  });
+  
+  updateProgress(answeredCount);
+  
+  container.querySelectorAll('.option-label input[type="radio"]').forEach(r => {
+    r.addEventListener("change", function() {
+      const c = this.closest(".question-card"); 
+      c.classList.remove("missed");
+      c.querySelectorAll(".option-label").forEach(l => l.classList.remove("selected")); 
+      this.closest(".option-label").classList.add("selected");
+      userAnswers[c.dataset.id] = this.value; 
+      sessionStorage.setItem(`quizAnswers_${currentId}`, JSON.stringify(userAnswers)); 
+      updateProgress();
     });
-    updateProgress(answeredCount);
-    container.querySelectorAll('.option-label input[type="radio"]').forEach(r=>{
-      r.addEventListener("change",function(){
-        const c=this.closest(".question-card"); c.classList.remove("missed");
-        c.querySelectorAll(".option-label").forEach(l=>l.classList.remove("selected")); this.closest(".option-label").classList.add("selected");
-        userAnswers[c.dataset.id]=this.value; sessionStorage.setItem(`quizAnswers_${currentId}`,JSON.stringify(userAnswers)); updateProgress();
-      });
-    });
-    if(timerBaseSeconds>0) startTimer(); document.getElementById("btn-submit").onclick=submitQuiz; switchLayer(layerQuiz,"block");
+  });
+  
+  if (timerBaseSeconds > 0) startTimer(); 
+  document.getElementById("btn-submit").onclick = submitQuiz; 
+  switchLayer(layerQuiz, "block");
 
-    // TAMBAHKAN BARIS INI: Render ulang rumus matematika setelah elemen dimuat
-    if (window.MathJax) {
-      MathJax.typesetPromise([document.getElementById('quiz-container')]).catch((err) => console.log(err.message));
-    }
+  if (window.MathJax) {
+    MathJax.typesetPromise([container]).catch((err) => console.log("Gagal merender matematika:", err.message));
   }
-  }
-
+}
   function updateProgress(count){ const t=quizData.length, a=count!==undefined?count:Object.keys(userAnswers).length; document.getElementById("progress-text").textContent=`${a}/${t}`; }
 
   function startTimer(){
