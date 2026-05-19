@@ -422,6 +422,12 @@
       });
     });
     if(timerBaseSeconds>0) startTimer(); document.getElementById("btn-submit").onclick=submitQuiz; switchLayer(layerQuiz,"block");
+
+    // TAMBAHKAN BARIS INI: Render ulang rumus matematika setelah elemen dimuat
+    if (window.MathJax) {
+      MathJax.typesetPromise([document.getElementById('quiz-container')]).catch((err) => console.log(err.message));
+    }
+  }
   }
 
   function updateProgress(count){ const t=quizData.length, a=count!==undefined?count:Object.keys(userAnswers).length; document.getElementById("progress-text").textContent=`${a}/${t}`; }
