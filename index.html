@@ -173,6 +173,33 @@
     .exit-dialog-sub { font-size: 13px; color: var(--slate-500); margin-bottom: 22px; line-height: 1.5; }
     .exit-dialog-btns { display: flex; gap: 10px; }
     .exit-dialog-btns .btn { animation: none; }
+
+    /* ── KUSTOMISASI KONTEN SOAL OSN ── */
+    .soal-teks { 
+      font-size: 15px; 
+      color: var(--slate-900); 
+      line-height: 1.75; 
+    }
+    .soal-teks:not(:last-child) {
+      margin-bottom: 12px;
+    }
+    .soal-grafik, .soal-gambar { 
+      margin: 16px 0; 
+      max-width: 100%; 
+      overflow-x: auto; /* Mencegah grafik/gambar meluber di layar HP */
+      scrollbar-width: thin;
+    }
+    .soal-grafik::-webkit-scrollbar, .soal-gambar::-webkit-scrollbar {
+      height: 6px;
+    }
+    .soal-grafik::-webkit-scrollbar-thumb, .soal-gambar::-webkit-scrollbar-thumb {
+      background-color: var(--slate-300);
+      border-radius: 10px;
+    }
+    /* Memastikan elemen buatan (inline) di dalam grafik tidak menyusut paksa */
+    .soal-grafik > div, .soal-gambar > div { 
+      flex-shrink: 0; 
+    }
   </style>
 </head>
 <body>
@@ -464,5 +491,20 @@
   window.addEventListener("DOMContentLoaded", fetchInitialData);
 })();
 </script>
+  <!-- Engine MathJax untuk membaca rumus matematika (LaTeX) -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </body>
 </html>
+
+
+
+
